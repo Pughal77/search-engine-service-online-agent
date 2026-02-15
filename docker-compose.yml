@@ -1,0 +1,29 @@
+services:
+  fastapi-app:
+    build: 
+      context: ./api  # Path to your FastAPI code and Dockerfile
+    container_name: fastapi_gateway
+    ports:
+      - "8000:8000"   # Access your API at http://localhost:8000
+    environment:
+      - SEARXNG_URL=http://searxng:8080
+    depends_on:
+      - searxng
+    networks:
+      - search-net
+
+  # The Official SearXNG Service
+  searxng:
+    image: searxng/searxng:latest
+    container_name: searxng_engine
+    # We do NOT expose ports here if we want all traffic to go through FastAPI
+    volumes:
+      - ./search-engine:/etc/searxng:rw
+    environment:
+      - SEARXNG_SETTINGS_PATH=/etc/searxng/settings.yml
+    networks:
+      - search-net
+
+networks:
+  search-net:
+    driver: bridge
