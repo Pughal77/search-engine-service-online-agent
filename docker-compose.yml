@@ -11,6 +11,7 @@ services:
       - searxng
     networks:
       - search-net
+      - infrastructure-net # needed to
 
   # The Official SearXNG Service
   searxng:
@@ -27,3 +28,6 @@ services:
 networks:
   search-net:
     driver: bridge
+  infrastructure-net:
+    external: true # set to driver: bridge if you want to create a new one instead of using the existing onej
+    name: online-agent_default

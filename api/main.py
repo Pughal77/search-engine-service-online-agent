@@ -16,8 +16,8 @@ QUEUE_IN = "query_queue" # coming from user query input
 QUEUE_OUT = "url_queue" # going to web scraping service
 
 # Connection strings
-redis_host = os.getenv("REDIS_HOST", "localhost")
-rmq_host = os.getenv("RABBITMQ_HOST", "localhost")
+redis_host = os.getenv("REDIS_HOST", "redis-state-store") # Use localhost as deafult if you are running rabbitmq and redis on your locally
+rmq_host = os.getenv("RABBITMQ_HOST", "rabbitmq-broker")
 redis_url = f"redis://{redis_host}:6379"
 rmq_url = f"amqp://admin:password123@{rmq_host}:5672/"
 
