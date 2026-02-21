@@ -11,7 +11,7 @@ services:
       - searxng
     networks:
       - search-net
-      - infrastructure-net # needed to
+      - infrastructure-net # needed so that FastAPI can communicate with Rabbitmq and redis using the shared network
 
   # The Official SearXNG Service
   searxng:
