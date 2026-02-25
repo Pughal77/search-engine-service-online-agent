@@ -27,7 +27,7 @@ async def process_message(message: aio_pika.IncomingMessage, app: FastAPI, chann
     '''
         Format of message coming from query_queue:
         {
-            "id": "unique_request_id",
+            "request_id": "unique_request_id",
             "q": "user search query"
         }
         Format of message going to url_queue:
@@ -39,13 +39,15 @@ async def process_message(message: aio_pika.IncomingMessage, app: FastAPI, chann
     async with message.process():
         logger.info(f"[*] Received message in Search Engine Service")
         data = json.loads(message.body)
-        request_id = data['id']
+        request_id = data['request_id']
+        query = data['q']
         
         # 
         try:
-            response = requests.get(SEARXNG_URL, params={"q": data.q, "format": "json"})
+            response = requests.post(SEARXNG_URL, params={"q": query, "format": "json"})
             response.raise_for_status()
             if response.status_code == 200:
+                logger.info(f"Successfully received response from SearXNG for request_id: {request_id}")
                 data_out = response.json()
             else:
                 raise HTTPException(status_code=400, detail=f"Error from SearXNG: {response.status_code}")
@@ -67,7 +69,7 @@ async def process_message(message: aio_pika.IncomingMessage, app: FastAPI, chann
         requests_to_send = 3 # hardcoded as we pass only top 3 results to next stage
         await app.state.redis.incrby(request_id, requests_to_send)
         
-        logger.info(f"[*] Search Engine Service started: {request_id}")
+        logger.info(f"[*] Search Engine Service started sending requests to next stage: {request_id}")
 
 
         i = 0
